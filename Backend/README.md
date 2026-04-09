@@ -76,3 +76,93 @@ curl -X POST http://localhost:4000/user/register \
 - Email addresses must be unique
 - JWT token expires in 1 hour
 - User data is validated before creation
+
+## User Profile Endpoint
+
+### GET /users/profile
+
+Retrieves the authenticated user's profile information.
+
+#### Authentication
+Requires a valid JWT token in the Authorization header.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### Response
+
+##### Success (200 OK)
+```json
+{
+  "user": {
+    "fullname": {
+      "firstname": "string",
+      "lastname": "string"
+    },
+    "email": "string",
+    "_id": "string",
+    "socketId": "string"
+  }
+}
+```
+
+##### Unauthorized (401)
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+#### Example Request
+```bash
+curl -X GET http://localhost:4000/users/profile \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+#### Notes
+- Requires authentication
+- Returns the current user's profile data
+
+## User Logout Endpoint
+
+### GET /users/logout
+
+Logs out the authenticated user by clearing the session cookie and blacklisting the JWT token.
+
+#### Authentication
+Requires a valid JWT token in the Authorization header.
+
+#### Request Headers
+```
+Authorization: Bearer <jwt_token>
+```
+
+#### Response
+
+##### Success (200 OK)
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+##### Unauthorized (401)
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
+#### Example Request
+```bash
+curl -X GET http://localhost:4000/users/logout \
+  -H "Authorization: Bearer <your_jwt_token>"
+```
+
+#### Notes
+- Requires authentication
+- Clears the session cookie
+- Blacklists the JWT token to prevent reuse
+- User will need to login again to access protected routes
