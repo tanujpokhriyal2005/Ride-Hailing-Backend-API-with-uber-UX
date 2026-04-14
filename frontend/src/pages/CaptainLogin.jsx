@@ -1,12 +1,16 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
-
+import { useState, useContext } from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { CaptainDataContext } from '../../../../../Uber/frontend/src/context/CaptainContext'
 
 function Captainlogin() {
     const [email,setEmail] = useState('')
     const [password,setPassword] = useState('')
     const [captainData,setCaptainData] = useState({})
+    
+    const { captain, setCaptain } = useContext(CaptainDataContext)
 
     
     

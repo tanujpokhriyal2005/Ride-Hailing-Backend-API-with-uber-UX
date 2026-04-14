@@ -1,23 +1,46 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { UserDataContext } from '../context/UserContext'
+
 
 function UserLogin() {
+    const [ email, setEmail ] = useState('')
+  const [ password, setPassword ] = useState('')
+  const [ userData, setUserData ] = useState({})
 
-    const [email,setEmail] = useState('')
-    const [password,setPassword] = useState('')
-    const [userData,setUserData] = useState({})
+  const { user, setUser } = useContext(UserDataContext)
+  const navigate = useNavigate()
 
 
-    const submitHandler = (e)=>{
-        e.preventDefault();
-        setUserData({
-            email: email,
-            password: password
-        })
-        setEmail('')
-        setPassword('')
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+
+    const userData = {
+      email: email,
+      password: password
     }
+
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/login`, userData)
+
+      if (response.status === 200) {
+        const data = response.data
+        setUser(data.user)
+        localStorage.setItem('token', data.token)
+        navigate('/home')
+      }
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message)
+      alert(error.response?.data?.error || 'Login failed')
+    }
+
+    setEmail('')
+    setPassword('')
+  }
 
     return (
         <div className='min-h-screen flex flex-col bg-white'>
