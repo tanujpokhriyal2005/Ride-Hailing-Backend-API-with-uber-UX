@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom'
 import { CaptainDataContext } from '../context/CaptainContext'
 import { useNavigate } from 'react-router-dom'
@@ -19,7 +19,7 @@ const CaptainSignup = () => {
   const [ vehicleType, setVehicleType ] = useState('')
 
 
-  const { captain, setCaptain } = React.useContext(CaptainDataContext)
+  const { captain, setCaptain } = useContext(CaptainDataContext)
 
 
   const submitHandler = async (e) => {
@@ -39,24 +39,28 @@ const CaptainSignup = () => {
       }
     }
 
-    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/register`, captainData)
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/register`, captainData)
 
-    if (response.status === 201) {
-      const data = response.data
-      setCaptain(data.captain)
-      localStorage.setItem('token', data.token)
-      navigate('/captain-home')
+      if (response.status === 201) {
+        const data = response.data
+        setCaptain(data.captain)
+        localStorage.setItem('token', data.token)
+        navigate('/captain-home')
+      }
+
+      setEmail('')
+      setFirstName('')
+      setLastName('')
+      setPassword('')
+      setVehicleColor('')
+      setVehiclePlate('')
+      setVehicleCapacity('')
+      setVehicleType('')
+    } catch (error) {
+      console.error('Captain signup error:', error.response?.data || error.message)
+      alert(error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Registration failed')
     }
-
-    setEmail('')
-    setFirstName('')
-    setLastName('')
-    setPassword('')
-    setVehicleColor('')
-    setVehiclePlate('')
-    setVehicleCapacity('')
-    setVehicleType('')
-
   }
   return (
     <div className='py-1 px-5 h-screen flex flex-col justify-between'>
