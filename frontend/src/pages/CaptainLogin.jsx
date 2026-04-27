@@ -3,26 +3,40 @@ import { Link } from 'react-router-dom'
 import { useState, useContext } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { CaptainDataContext } from '../../../../../Uber/frontend/src/context/CaptainContext'
+import { CaptainDataContext } from '../context/CaptainContext'
 
 function Captainlogin() {
     const [email,setEmail] = useState('')
     const [password,setPassword] = useState('')
-    const [captainData,setCaptainData] = useState({})
     
     const { captain, setCaptain } = useContext(CaptainDataContext)
+    const navigate = useNavigate()
 
-    
-    
-        const submitHandler = (e)=>{
-            e.preventDefault();
-            setCaptainData({
-                email: email,
-                password: password
-            })
-            setEmail('')
-            setPassword('')
+    const submitHandler = async (e)=>{
+        e.preventDefault();
+        
+        const captainData = {
+            email: email,
+            password: password
         }
+
+        try {
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/login`, captainData)
+
+            if (response.status === 200) {
+                const data = response.data
+                setCaptain(data.captain)
+                localStorage.setItem('token', data.token)
+                navigate('/captain-home')
+            }
+        } catch (error) {
+            console.error('Captain login error:', error.response?.data || error.message)
+            alert(error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Login failed')
+        }
+
+        setEmail('')
+        setPassword('')
+    }
 
     return (
         <div
@@ -58,7 +72,7 @@ function Captainlogin() {
 
                         <div className="flex justify-center">
                           <button className="bg-black text-white py-2 px-4 rounded mt-5">
-                            Login
+                            Login as Captain
                           </button>
                         </div>
 

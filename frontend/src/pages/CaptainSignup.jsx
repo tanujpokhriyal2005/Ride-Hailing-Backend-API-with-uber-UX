@@ -31,11 +31,11 @@ const CaptainSignup = () => {
       },
       email: email,
       password: password,
-      vehicle: {
+      vechile: {
         color: vehicleColor,
         plate: vehiclePlate,
-        capacity: vehicleCapacity,
-        vehicleType: vehicleType
+        capacity: Number(vehicleCapacity),
+        vechileType: vehicleType === 'moto' ? 'motorcycle' : vehicleType
       }
     }
 
@@ -59,7 +59,9 @@ const CaptainSignup = () => {
       setVehicleType('')
     } catch (error) {
       console.error('Captain signup error:', error.response?.data || error.message)
-      alert(error.response?.data?.error || error.response?.data?.errors?.[0]?.msg || 'Registration failed')
+      const backendMessage = error.response?.data?.error ||
+        error.response?.data?.errors?.map(err => err.msg).join(', ')
+      alert(backendMessage || 'Registration failed')
     }
   }
   return (
@@ -164,11 +166,12 @@ const CaptainSignup = () => {
               <option value="" disabled>Select Vehicle Type</option>
               <option value="car">Car</option>
               <option value="auto">Auto</option>
-              <option value="moto">Bike</option>
+              <option value="motorcycle">Bike</option>
             </select>
           </div>
 
           <button
+            type='submit'
             className='bg-[#111] text-white font-semibold mb-3 rounded-lg px-4 py-2 w-full text-lg placeholder:text-base'
           >Create Captain Account</button>
 
