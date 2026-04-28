@@ -32,17 +32,19 @@ module.exports.getDistanceTime = async (origin, destination) => {
 
     try {
         const response = await axios.get(url);
-        if(response.data.status === 'OK') {
-
-            if(response.data.rows[0].elements[0].status === 'ZERO_RESULTS') {
+        if (response.data.status === 'OK') {
+            const row = response.data.rows?.[0];
+            const element = row?.elements?.[0];
+            if (!element || element.status === 'ZERO_RESULTS') {
                 throw new Error('No route found between the specified origin and destination');
             }
-            const element = response.data.rows[0].elements[0];
+            if (!element.distance || !element.duration) {
+                throw new Error('Distance or duration data missing from maps response');
+            }
             return {
-                distance: element.distance.text,
-                time: element.duration.text
+                distance: element.distance,
+                duration: element.duration
             };
-            
         } else {
             throw new Error('Unable to fetch distance and time');
         }

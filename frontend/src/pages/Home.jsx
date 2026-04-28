@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import {useGSAP} from '@gsap/react'
 import gsap from 'gsap'
 import 'remixicon/fonts/remixicon.css'
+import axios from 'axios'
 import LocationSearchPanel from '../components/LocationSearchPanel'
 import VehiclePanel from '../components/VehiclePanel'
 import ConfirmRide from '../components/ConfirmRide'
@@ -24,6 +25,37 @@ function Home() {
     const vehicleFoundRef = useRef(null)
     const waitingForDriverRef = useRef(null)
     const [waitingForDriver, setWaitingForDriver] = useState(false)
+    const [activeField, setActiveField] = useState('')
+    const [suggestions, setSuggestions] = useState([])
+
+    const fetchSuggestions = async (input) => {
+        if (input.length < 3) {
+            setSuggestions([])
+            return
+        }
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/maps/get-suggestions`, {
+                params: { input },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            setSuggestions(response.data.suggestions || [])
+        } catch (error) {
+            console.error('Error fetching suggestions:', error)
+            setSuggestions([])
+        }
+    }
+
+    const setLocation = (location) => {
+        if (activeField === 'pickup') {
+            setPickup(location.description)
+        } else if (activeField === 'destination') {
+            setDestination(location.description)
+        }
+        setPanelOpen(false)
+        setSuggestions([])
+    }
 
     // useGSAP must be called at the top level before any conditional logic
     useGSAP(function(){
@@ -139,11 +171,13 @@ function Home() {
                         <div className="line absolute h-15 w-0.75 top-[39%] left-10 bg-gray-700 rounded-full"></div>
                         <input
                         onClick={()=>{
+                            setActiveField('pickup')
                             setPanelOpen(true)
                         }}
                         value={pickup}
                         onChange={(e)=>{
                             setPickup(e.target.value)
+                            fetchSuggestions(e.target.value)
                         }}
                         className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full mt-3 mb-2' 
                         type="text" 
@@ -151,11 +185,13 @@ function Home() {
                         />
                         <input 
                         onClick={()=>{
+                            setActiveField('destination')
                             setPanelOpen(true)
                         }}
                         value={destination}
                         onChange={(e)=>{
                             setDestination(e.target.value)
+                            fetchSuggestions(e.target.value)
                         }}
                         className='bg-[#eee] px-12 py-2 text-base rounded-lg w-full mb-2' 
                         type="text" 
@@ -164,7 +200,7 @@ function Home() {
                     </form>
                 </div>
                 <div ref={panelRef} className=' bg-white h-0'>
-                        <LocationSearchPanel setVehiclePanel={setVehiclePanel} setPanelOpen={setPanelOpen} />
+                        <LocationSearchPanel suggestions={suggestions} activeField={activeField} setLocation={setLocation} setVehiclePanel={setVehiclePanel} setPanelOpen={setPanelOpen} />
                 </div>
             </div>
             <div ref={vehiclePanelRef} className={`fixed w-full z-30 bottom-0 bg-white px-3 rounded-t-3xl max-h-80 overflow-y-auto shadow-2xl transition-all duration-300 ease-in-out ${vehiclePanel ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
