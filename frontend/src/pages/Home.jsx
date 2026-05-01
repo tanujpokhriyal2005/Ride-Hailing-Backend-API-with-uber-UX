@@ -27,6 +27,9 @@ function Home() {
     const [waitingForDriver, setWaitingForDriver] = useState(false)
     const [activeField, setActiveField] = useState('')
     const [suggestions, setSuggestions] = useState([])
+    const [fare, setFare] = useState(null)
+    const [vehicleType, setVehicleType] = useState(null)
+
 
     const fetchSuggestions = async (input) => {
         if (input.length < 3) {
@@ -53,7 +56,6 @@ function Home() {
         } else if (activeField === 'destination') {
             setDestination(location.description)
         }
-        setPanelOpen(false)
         setSuggestions([])
     }
 
@@ -144,6 +146,39 @@ function Home() {
         }
     }, [waitingForDriver])
 
+    async function findTrip(){
+        setVehiclePanel(true)
+        setPanelOpen(false)
+
+        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/rides/get-fare`, {
+            params:{pickup, destination},
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        setFare(response.data.fare)
+    }
+
+    async function createRide(){
+        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
+            pickup,
+            destination,
+            vehicleType
+
+        },{
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+        console.log(response.data)
+    }
+
+
+
+
+
+
+
 
     const submitHandler = (e) => {
         e.preventDefault()
@@ -158,7 +193,7 @@ function Home() {
                 <img className='h-full w-full object-cover' src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif" alt="" />
             </div>
             <div className=' flex flex-col justify-end h-screen absolute top-0 w-full'>
-                <div className='h-[30%] p-6 bg-white relative'>
+                <div className='h-[40%] p-6 bg-white relative'>
                     <h5 ref={panelCloseRef} onClick={()=>{
                         setPanelOpen(false)
                     }} className='absolute opacity-0 top-3 right-2 text-xl'>
@@ -198,19 +233,40 @@ function Home() {
                         placeholder='Enter your destination' 
                         />
                     </form>
+                    <button className='w-full mt-2' onClick={findTrip}>
+                        <div className='w-full bg-black text-white rounded-2xl p-3 font-semibold text-center'>
+                            Search Rides
+                        </div>
+                    </button>
                 </div>
                 <div ref={panelRef} className=' bg-white h-0'>
                         <LocationSearchPanel suggestions={suggestions} activeField={activeField} setLocation={setLocation} setVehiclePanel={setVehiclePanel} setPanelOpen={setPanelOpen} />
                 </div>
             </div>
             <div ref={vehiclePanelRef} className={`fixed w-full z-30 bottom-0 bg-white px-3 rounded-t-3xl max-h-80 overflow-y-auto shadow-2xl transition-all duration-300 ease-in-out ${vehiclePanel ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
-                <VehiclePanel setConfirmRidePanel={setConfirmRidePanel} setVehiclePanel={setVehiclePanel} />
+                <VehiclePanel 
+                selectVehicle={setVehicleType}
+                fare={fare} 
+                setConfirmRidePanel={setConfirmRidePanel} 
+                setVehiclePanel={setVehiclePanel} />
             </div>
             <div ref={confirmRidePanelRef} className={`fixed w-full z-10 bottom-0 bg-white px-3 rounded-t-3xl shadow-2xl transition-all duration-300 ease-in-out ${confirmRidePanel ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
-                <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
+                <ConfirmRide
+                pickup={pickup} 
+                destination={destination}
+                createRide={createRide} 
+                vehicleType={vehicleType} 
+                fare={fare}
+                setConfirmRidePanel={setConfirmRidePanel} 
+                setVehicleFound={setVehicleFound} />
             </div>
             <div ref={vehicleFoundRef} className={`fixed w-full z-10 bottom-0 bg-white px-3 rounded-t-3xl shadow-2xl transition-all duration-300 ease-in-out ${vehicleFound ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
-                <LookingForDriver setVehicleFound={setVehicleFound}/>
+                <LookingForDriver 
+                fare={fare}
+                vehicleType={vehicleType} 
+                pickup={pickup} 
+                destination={destination}
+                setVehicleFound={setVehicleFound}/>
             </div>
             <div ref={waitingForDriverRef} className={`fixed w-full z-10 bottom-0 bg-white px-3 rounded-t-3xl shadow-2xl transition-all duration-300 ease-in-out ${vehicleFound ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-full pointer-events-none'}`}>
                 <WaitingForDriver waitingForDriver={waitingForDriver} />

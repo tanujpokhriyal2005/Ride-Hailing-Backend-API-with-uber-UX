@@ -1,12 +1,15 @@
-import React from 'react'
+import React,{useContext} from 'react'
+
 
 function CaptainDetails() {
+   
+
     return (
         <div>
             <div className='flex items-center justify-between'>
                 <div className='flex items-center justify-start gap-4'>
                     <img className='h-20 w-20 rounded-full object-cover' src="https://m.economictimes.com/thumb/height-450,width-600,imgsize-52727,msid-53372757/most-women-like-men-with-good-taste-in-shoes-sidharth-malhotra.jpg" alt="" />
-                    <h4 className='text-lg font-medium'>Captain Siddharth</h4>
+                    <h4 className='text-lg font-medium'>Captain </h4>
                 </div>
                 <div>
                     <h4 className='text-xl font-semibold'>₹296.48</h4>

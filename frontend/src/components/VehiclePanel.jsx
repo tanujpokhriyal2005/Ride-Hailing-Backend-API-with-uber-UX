@@ -10,6 +10,7 @@ function VehiclePanel(props) {
                 <div onClick={()=>{
                     props.setConfirmRidePanel(true)
                     props.setVehiclePanel(false)
+                    props.selectVehicle('motorcycle')
                 }} className=' flex active:border-2 border-black mb-2 rounded-xl p-2 w-full  items-center justify-between'>
                     <img className='h-11 px-4' src="https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=552/height=552/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy85NTM4NTEyZC1mZGUxLTRmNzMtYmQ1MS05Y2VmZjRlMjU0ZjEucG5n" alt="" />
                     <div className=' text-xs'>
@@ -17,11 +18,12 @@ function VehiclePanel(props) {
                         <h5>5mins away</h5>
                         <p className='text-gray-600 font-medium'>fast motorcycle rides</p>
                 </div>
-                    <h2 className='font-semibold '>₹78.45</h2>
+                    <h2 className='font-semibold '>₹{props.fare?.motorcycle || '0.00'}</h2>
                 </div>
                 <div onClick={()=>{
                     props.setConfirmRidePanel(true)
                     props.setVehiclePanel(false)
+                    props.selectVehicle('car')
                 }} className='flex active:border-2 border-black mb-2 rounded-xl p-2 w-full  items-center justify-between'>
                     <img className='h-17' src="https://cn-geo1.uber.com/image-proc/crop/resizecrop/udam/format=auto/width=552/height=368/srcb64=aHR0cHM6Ly90Yi1zdGF0aWMudWJlci5jb20vcHJvZC91ZGFtLWFzc2V0cy9iY2Q4ZmRmOC0yYjM0LTUyZGUtYmM3Zi1mNDFmMDgwNTliY2MucG5n" alt="" />
                     <div className=' text-xs'>
@@ -29,11 +31,12 @@ function VehiclePanel(props) {
                         <h5>2mins away</h5>
                         <p className='text-gray-600 font-medium'>affordable,compact rides</p>
                     </div>
-                    <h2 className='font-semibold '>₹193.20</h2>
+                    <h2 className='font-semibold '>₹{props.fare?.car || '0.00'}</h2>
                 </div>
                 <div onClick={()=>{
                     props.setConfirmRidePanel(true)
                     props.setVehiclePanel(false)
+                    props.selectVehicle('auto')
                 }} className='flex active:border-2 border-black mb-2 rounded-xl p-2 w-full  items-center justify-between'>
                     <img className='h-12' src="https://clipart-library.com/2023/Uber_Auto_312x208_pixels_Mobile.png" alt="" />
                     <div className=' text-xs'>
@@ -41,7 +44,7 @@ function VehiclePanel(props) {
                         <h5>2mins away</h5>
                         <p className='text-gray-600 font-medium'>cheap, reliable rides</p>
                     </div>
-                    <h2 className='font-semibold '>₹128.47</h2>
+                    <h2 className='font-semibold '>₹{props.fare?.auto || '0.00'}</h2>
                 </div>
         </div>
     )

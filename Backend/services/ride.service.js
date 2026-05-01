@@ -38,6 +38,8 @@ async function getFare(pickup, destination) {
     return fare;
 }
 
+module.exports.getFare = getFare;
+
 
 function getOTP(num){
     function generateOTP(num){

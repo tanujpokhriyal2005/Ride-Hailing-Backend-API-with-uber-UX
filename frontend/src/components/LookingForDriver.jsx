@@ -13,21 +13,21 @@ function LookingForDriver(props) {
                         <div className='flex items-center gap-5 p-2 border-b-2 border-gray-300'>
                             <i className="text-lg ri-map-pin-line"></i>
                             <div>
-                                <h3 className='text-lg font-medium'>562/11-A</h3>
-                                <p className='text-sm -mt-1 text-gray-600'>Near kaali Mandir,Noida</p>
+                                <h3 className='text-lg font-medium'>Pickup</h3>
+                                <p className='text-sm -mt-1 text-gray-600'>{props.pickup}</p>
                             </div>
                         </div>
                         <div className='flex items-center gap-5 p-2 border-b-2 border-gray-300'>
                             <i className="ri-navigation-line"></i>
                             <div>
-                                <h3 className='text-lg font-medium'>Boys Hostel</h3>
-                                <p className='text-sm -mt-1 text-gray-600'>GGSIPU-edc,Near Leela Palace,Delhi</p>
+                                <h3 className='text-lg font-medium'>Destination</h3>
+                                <p className='text-sm -mt-1 text-gray-600'>{props.destination}</p>
                             </div>
                         </div>
                         <div className='flex items-center gap-5 p-2'>
                             <i className="ri-money-rupee-circle-line"></i>
                             <div>
-                                <h3 className='text-lg font-medium'>₹193.20</h3>
+                                <h3 className='text-lg font-medium'>₹{props.fare?.[props.vehicleType] || '0.00'}</h3>
                                 <p className='text-sm -mt-1 text-gray-600'>Cash or UPI</p>
                             </div>
                         </div>

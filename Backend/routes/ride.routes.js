@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {body} = require("express-validator");
+const {body,query} = require("express-validator");
 const rideController = require("../controllers/ride.controller");
 const { authUser } = require("../middlewares/auth.middleware");
 
@@ -23,5 +23,15 @@ router.post("/create",
         .isIn(["auto", "car", "motorcycle", "moto", "bike"]).withMessage("invalid vechile type"),
     rideController.createRide
 );
+
+router.get("/get-fare",
+    authUser,
+    query("pickup").isString().withMessage("pickup location is required"),
+    query("destination").isString().withMessage("dropoff location is required"),
+    rideController.getFare
+)
+
+
+
 
 module.exports = router;
