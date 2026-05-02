@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useRef, useEffect } from 'react'
+import { Link, Navigate } from 'react-router-dom'
 import {useGSAP} from '@gsap/react'
 import gsap from 'gsap'
 import 'remixicon/fonts/remixicon.css'
@@ -9,6 +9,13 @@ import VehiclePanel from '../components/VehiclePanel'
 import ConfirmRide from '../components/ConfirmRide'
 import LookingForDriver from '../components/LookingForDriver'
 import WaitingForDriver from '../components/WaitingForDriver'
+import { useContext } from 'react'
+import {UserDataContext} from '../context/UserContext'
+import { SocketContext } from '../context/SocketContext.jsx'
+import { useNavigate } from 'react-router-dom'
+
+
+
 
 function Home() {
     // All hooks must be called at the top level, in the same order every render
@@ -29,6 +36,41 @@ function Home() {
     const [suggestions, setSuggestions] = useState([])
     const [fare, setFare] = useState(null)
     const [vehicleType, setVehicleType] = useState(null)
+    const [ride, setRide] = useState(null)
+
+    const {sendMessage, receiveMessage, user} = useContext(UserDataContext)
+    const socket = useContext(SocketContext)
+    const navigate = useNavigate()
+
+    useEffect(()=>{
+        if (!socket || !user) return
+
+        socket.emit('join',{userType:'user', userId:user._id})
+    }, [socket, user])
+
+    useEffect(() => {
+        if (!socket) return
+
+        const handleRideConfirmed = (ride) => {
+            setVehicleFound(false)
+            setWaitingForDriver(true)
+            setRide(ride)
+        }
+
+        const handleRideStarted = (ride) => {
+            console.log('ride')
+            setWaitingForDriver(false)
+            navigate('/riding',{state: {ride}})
+        }
+
+        socket.on('ride-confirmed', handleRideConfirmed)
+        socket.on('ride-started', handleRideStarted)
+
+        return () => {
+            socket.off('ride-confirmed', handleRideConfirmed)
+            socket.off('ride-started', handleRideStarted)
+        }
+    }, [socket, navigate])
 
 
     const fetchSuggestions = async (input) => {
@@ -203,7 +245,7 @@ function Home() {
                     <form onSubmit={(e)=>{
                         submitHandler(e)
                     }}>
-                        <div className="line absolute h-15 w-0.75 top-[39%] left-10 bg-gray-700 rounded-full"></div>
+                        <div className="line absolute h-10 w-0.75 top-[35%] left-10 bg-gray-700 rounded-full"></div>
                         <input
                         onClick={()=>{
                             setActiveField('pickup')

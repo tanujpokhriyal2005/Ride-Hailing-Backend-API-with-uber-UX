@@ -1,6 +1,8 @@
 const axios = require('axios');
 const dotenv = require('dotenv');
+const { listIndexes } = require('../models/user.model');
 dotenv.config();
+const captainModel = require('../models/captain.model');
 
 module.exports.getCoordinates = async (address) => {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -75,3 +77,15 @@ module.exports.getSuggestions = async (input) => {
         throw error;
     }
 };
+
+module.exports.getCaptainsInRadius = async (ltd, lng, radius) => {
+    const captains = await captainModel.find({
+        location: {
+            $geoWithin: {    //mongodb geospatial query to find captains within a certain radius
+                $centerSphere: [[lng, ltd], radius / 6378.1] // radius in radians
+            }
+        }
+    });
+    return captains;
+}
+

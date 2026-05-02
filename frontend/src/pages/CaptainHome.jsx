@@ -1,17 +1,84 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import CaptainDetails from '../components/CaptainDetails'
 import RidePopup from '../components/RidePopup.jsx'
 import { useGSAP } from '@gsap/react'
 import gsap from 'gsap'
 import ConfirmRidePopUp from '../components/ConfirmRidePopup.jsx'
+import { SocketContext } from '../context/SocketContext.jsx'
+import { CaptainDataContext } from '../context/CaptainContext.jsx'
+import axios from 'axios'
+
+
+
+
+
+
 
 function CaptainHome() {
     const [ridePopupPanel, setRidePopupPanel] = useState(true)
     const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false)
-    const ridePopupPanelRef = React.useRef(null)
-    const confirmRidePopupPanelRef = React.useRef(null)
+    const [ride, setRide] = useState(null)
 
+    const ridePopupPanelRef = useRef(null)
+    const confirmRidePopupPanelRef = useRef(null)
+
+    const socket = useContext(SocketContext)
+    const {captain} = useContext(CaptainDataContext)
+
+    useEffect(() => {
+        if (!socket || !captain) return
+
+        socket.emit('join', {
+            userId: captain._id,
+            userType: 'captain'
+        })
+
+        const updateLocation = () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+
+
+                    console.log('Updating location:', position.coords.latitude, position.coords.longitude);
+                    socket.emit('update-location-captain', {
+                        userId: captain._id,
+                        location: {
+                            ltd: position.coords.latitude,
+                            lng: position.coords.longitude
+                        }
+                    })
+                })
+            }
+        }
+
+        const handleNewRide = (data) => {
+            setRidePopupPanel(true)
+            setRide(data)
+        }
+
+        socket.on('new-ride', handleNewRide)
+        const locationInterval = setInterval(updateLocation, 10000)
+        updateLocation()
+
+        return () => {
+            clearInterval(locationInterval)
+            socket.off('new-ride', handleNewRide)
+        }
+    }, [socket, captain])
+
+        async function confirmRide(){
+            const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/confirm`,{
+                rideId:ride._id,
+                captainId:captain._id
+
+            },{
+                headers:{
+                    Authorization:`Bearer ${localStorage.getItem('token')}`
+                }
+            })
+            setRidePopupPanel(false)
+            setConfirmRidePopupPanel(true)
+        }
 
     useGSAP(function () {
         if (ridePopupPanel) {
