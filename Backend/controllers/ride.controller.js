@@ -1,8 +1,9 @@
 const rideService = require('../services/ride.service');
 const { validationResult } = require('express-validator');
-const {mapService} = require('../services/maps.service');
+const mapService = require('../services/maps.service');
 const { sendMessageToSocketId } = require('../socket');
-
+const rideModel = require('../models/ride.model');
+const userModel = require('../models/user.model');
 
 module.exports.createRide = async (req, res) => {
     const errors = validationResult(req);
@@ -14,20 +15,27 @@ module.exports.createRide = async (req, res) => {
         const ride = await rideService.createRide({ user: req.user._id, pickup, destination, vechileType });
         res.status(201).json(ride);
 
-        const pickupCoordinates = await mapService.getCoordinates(pickup);
-        const captainsInRadius = await mapService.getCaptainsInRadius(pickupCoordinates.lat, pickupCoordinates.lng, 500); // 5 km radius
+        // Run captain notification asynchronously after response is sent
+        setImmediate(async () => {
+            try {
+                const pickupCoordinates = await mapService.getCoordinates(pickup);
+                const captainsInRadius = await mapService.getCaptainsInRadius(pickupCoordinates.lat, pickupCoordinates.lng, 500);
 
-        ride.otp = ""
+                ride.otp = ""
 
-        const rideWithUser = await ride.populate('user', 'name email phone').execPopulate();
+                // Fetch the ride with populated user data
+                const rideWithUser = await rideModel.findById(ride._id).populate('user', 'name email phone');
 
-        captainsInRadius.map(captain => {
-            sendMessageToSocketId(captain.socketId, {
-                event: 'new-ride',
-                data: rideWithUser
-            });
-        }) 
-
+                captainsInRadius.map(captain => {
+                    sendMessageToSocketId(captain.socketId, {
+                        event: 'new-ride',
+                        data: rideWithUser
+                    });
+                })
+            } catch (asyncError) {
+                console.error('Error sending ride to captains:', asyncError.message);
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -84,7 +92,7 @@ module.exports.startRide = async (req, res) => {
             data: ride
         });
         return res.status(200).json(ride);
-        
+
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
