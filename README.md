@@ -102,10 +102,7 @@ Where to read code (important files)
 
 Final notes
 - This repository is a strong starting point for a ride-hailing project: it has clear separation between controllers and services, uses Socket.IO for real-time updates, and a modern React frontend.
-- If you'd like, I can:
-  - Add example environment files and sample data.
-  - Create Postman collection / curl examples for main endpoints.
-  - Harden production settings (CORS, rate-limiting, helmet).
+
 
 ---
 Made with love - Tanuj
