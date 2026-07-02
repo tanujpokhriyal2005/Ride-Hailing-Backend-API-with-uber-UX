@@ -1,4 +1,4 @@
-# Uber Clone — Ride-hailing API with Uber-like Frontend
+# Ride-hailing API with Uber-like Frontend
 
 This repository is a minimal ride-hailing application (Uber clone) containing:
 
